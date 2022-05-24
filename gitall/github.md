@@ -14,6 +14,7 @@ window：
 在cmd命令行执行 ipconfig /flushdns 
 几个解决方案地址参考 push代码都不理想 看运气
 https://baijiahao.baidu.com/s?id=1717359593414824641&wfr=spider&for=pc
+
 ```
 
 ### 配置默认访问账户
