@@ -39,3 +39,6 @@ https://baijiahao.baidu.com/s?id=1717359593414824641&wfr=spider&for=pc
 2. 确认跳转网页授权
 3. 服务器无法访问 尝试其他方案
 4. 输入验证码授权
+
+### github issues
+[GitHub 上的 Issues 有什么用处？](#https://www.zhihu.com/question/22969033?sort=created)
