@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
+		<title>oop1</title>
+		<style></style>
+	</head>
+	<body>
+		<script type="text/javascript">
+			/**
+			 * 构造函数继承
+			 * 实例无法访问原型对象上的方法
+			 * 实例之间的对象操作不会受影响
+			 */
+			let Parent = function (name) {
+				this.common = 'Person'
+				this.type = 'Parent'
+				this.arr = [1, 2]
+				this.say = function () {
+					console.log('say')
+				}
+			}
+			Parent.prototype.say1 = function () {
+				console.log('say1')
+			}
+
+			let Child = function (name) {
+				Parent.call(this)
+				this.type = 'Child'
+				this.name = name || 'baby'
+				this.arrChild = [1, 2]
+			}
+			let Parent1 = new Parent()
+			let Child1 = new Child()
+			let Child2 = new Child('Daisy')
+
+			console.log(Parent1.say(), Child1.say())
+			// console.log(Parent1.say1(), Child1.say1())
+			Child1.arrChild.push(3)
+			console.log(Child1, Child2)
+		</script>
+		<div>面向对象</div>
+	</body>
+</html>

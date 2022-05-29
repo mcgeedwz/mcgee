@@ -323,6 +323,178 @@ setTimeout(function () {
 }, 1000);
 ```
 
+## 作用域
+
+1. 作用域指的是指一个变量合法使用的范围
+全局作用域  全局可以访问使用
+函数作用域  当前行数作用域内使用
+块级作用域  
+
+### 自由变量
+
+1. 自由变量  是指一个变量在当前作用域没有定义,但被使用了
+2. 向上级作用域逐层查找，直到找到
+3. 如果到全局作用域没找到，则报错未定义 xx is not defined
+4. 自由变量的查找，是在函数定义的地方，向上级作用域查找
+
+## 闭包 closure
+
+解题思路：
+    闭包：自由变量的查找，是在函数定义的地方，向上级作用域查找
+
+   ```js
+    // 函数作为返回值
+    function fn() {
+        const a  = 100
+        // 定义时的作用域向上查找
+        return function() {
+            consle.log(a)
+        }
+    }
+    const a = 200
+    let show = fn()
+    show()   // 100
+
+    // 函数作为参数
+    function show(fn) {
+        const a = 100
+        fn()
+    }
+    const a = 200
+    // 定义时的作用域向上查找
+    function fn() {
+        consle.log(a)
+    }
+    show()   // 200
+
+   ```
+
+### 闭包应用
+
+1. 隐藏数据 
+   ```js
+   // data变量数据只能在foo内部访问 函数外部无法访问 通过返回函数api操作内部数据 实现私有变量
+   function foo () {
+    const data = {}
+    return {
+        set: function(key, val) {
+            data[key] = val
+        },
+        get: function(key) {
+            console.log(key)
+            return data[key]
+        }
+    }
+   }
+   const mcgee = foo()
+   mcgee.set('name','mcgee')
+   console.log(mcgee.get('name'))
+   ```
+1. for循环
+   ```js
+   let i, a
+   for(i=0;i<10;i++) {
+       a = document.createElement('a')
+       a.innerHTML = '<div>' + i + '</div>'
+       a.addEventListener('click',function(e) {
+           e.preventDefault()
+            alert(i)    // 10 当点击标签 click函数执行的时候 函数调用查找i变量的值时for循环上一层作用域 此时循环已经执行 i变量的值已经变成10 
+       })
+       document.body.appendChild(a)
+   }
+
+   let a1
+   for(let k=0;k<10;k++) {
+       a1 = document.createElement('a')
+       a1.innerHTML = '<div>' + k + '</div>'
+       a1.addEventListener('click',function(e) {
+           e.preventDefault()
+            alert(k)    // k变量属于for循环的块级作用域 调用时会从块级作用域每次循环取值
+       })
+       document.body.appendChild(a1)
+   }
+
+   (function(jq){
+       jq.name = 'jquery'
+   })($$)
+
+   ```
+
+
+## this 
+
+this指向不是在定义的时侯确定，而是在调用执行的时候确定的。
+
+1. 作为普通函数调用 返回window
+2. 使用 call apply bind 调用  绑定什么指向什么
+3. 作为对象方法被调用  返回对象本身
+4. 在class 方法中调用  指向实例本身
+5. 箭头函数 指向一层作用域的this
+
+```js
+// 普通函数this指向
+function fn1 () {
+    console.log(this)
+}
+
+fn1(); // this->window
+
+fn1.call({'obj': 100}) // this->{'obj': 100} ，fn1.call 传入指向对象 / 其他参数， 相当于fn1函数内部代码执行一边 并且把this 指向传入的第一个参数
+
+const fn2 = fn1.bind({'obj': 200})
+fn2() // this->{'obj': 200} 需要返回一个新的函数去执行
+
+// 箭头函数this指向
+
+const foo = {
+    name: 'foo',
+    fn () {
+        console.log(this)   // this-> foo
+    },
+    fn1() {
+        console.log(this)   // this-> foo
+        // setTimeout本身触发的执行 不是fn1函数触发的执行
+        setTimeout(function() {
+            console.log(this)   // this-> window  
+        })
+    }
+}
+
+const foo1 = {
+    name: 'foo1'
+    fn() {
+        console.log(this)   // this-> foo1
+    },
+    fn1() {
+        console.log(this)   // this-> foo1
+        // 箭头函数指向上一层的作用域 也就是fn1作用域的this
+        setTimeout(()=>{
+            console.log(this)   // this-> foo1 箭头函数指向上一层的作用域
+        })
+    }
+}
+
+foo.fn()
+foo.fn1()
+foo1.fn()
+foo1.fn1()
+
+// 类
+class Persen {
+    constructor(name) {
+        this.name = name
+    }
+    sayHi() {
+        console.log(this)
+    }
+}
+
+const mcgee = new Persen('mcgee')
+mcgee.sayHi()   // this-> megee实例对象
+
+```
+
+
 
 ## 原型链
 
@@ -433,3 +605,127 @@ http1.1支持持久连接
 管线化    请求1-请求2-响应1-响应2 
 
 http1.1，get,head支持管线化，只能保证管线化请求管线化请求不失败，不会带来大幅度性能提升 浏览器默认未开启管线化支持
+
+## 手写题
+
+### 创建10个a标签，点击的时候弹出对应的序号
+
+```js
+let a
+for(let i = 0; i<=10; i++){
+    a = document.createElement('a')
+    a.innerHTML = i + '<br>'
+    a.addEventListener('click',function(e){
+        e.preventDefault()
+        alert(i)
+    })
+    document.body.appendChild(a)
+}
+
+let k, a1
+for(let k = 0; k<=10; k++){
+    a1 = document.createElement('a')
+    a1.innerHTML = k + '<br>'
+    a1.addEventListener('click',function(e){
+        e.preventDefault()
+        alert(k)
+    })
+    document.body.appendChild(a1)
+}
+```
+### bind 手写一个bing函数
+
+```js
+// 返回一个函数，返回执行结果
+function fn (a,b,c) {
+    console.log(this)
+    console.log(a,b,c)
+    return 'this is fn'
+}
+
+// fn1 等于fn函数 并且将 {'mcgee': 100} 对象
+// fn1.__proto__.constructor === Function
+// fn1 = fn (a,b,c) {
+//     console.log(this)
+//     console.log(a,b,c)
+//     return 'this is fn'
+// } 
+const fn1 = fn.bind({'mcgee': 100}, 1,2,3)  // 返回fn函数 this指向第一个参数
+
+const res = fn1()  // res 等于 执行fn1函数代码 并且返回函数里面返回的结果 return 'this is fn'
+console.log(res)
+
+// 手写bind  bind是Funtion这个对象上的属性方法
+Function.prototype.bind1 = function() {
+    // 将参数列表（类数组）拆解换成数组
+    //  slice 截取数组元素 返回一个含有被提取元素的新数组。
+    const args  = Array.prototype.slice.call(arguments)
+    // 将第一个参数作为绑定对象取出 参数数组剩下的是传入的其他参数 shift()返回数组第一元素
+    const target = args.shift()
+    // fn函数本身需要使用  fn.bind({'mcgee': 100}, 1,2,3) 
+    const self = this 
+    // 然后返回一个函数
+    return function() {
+        // 返回函数 并绑定传入的第一个对象
+        return self.apply(target, args)
+    }
+}
+
+
+```
+
+### 转数组 Array.prototype.slice.call(arguments)解释代码
+
+```js
+//  Array.prototype.slice.call(arguments)解释代码
+//    Array.prototype.slice.call(arguments) 相当于把slice方法this指向arguments，并且把slice的源代码方法执行了一遍 返回执行结果
+// slice 源码 将数组n开始之后的元素取出来返回一个新数组 不影响原数组
+Array.prototype.slice1 = function(n=0) {
+    let newArr = [],index = 0
+    for(let i = n; i <= this.length; i++) {
+        newArr[index++] = this[i]
+    }
+    return resArr
+}
+
+function foo() {
+   console.log(arguments)
+   console.log(Array.prototype.slice.call(arguments))
+}
+foo(1,{'show': 'show1'})
+
+```
+
+
+### 手写bind1 扩展 bind1, bind, call, apply源码实现区别
+
+```js
+// 手写bind1 扩展 bind1, bind, call, apply源码实现区别
+Function.prototype.bind1 = function(){
+    const args = Array.prototype.slice.call(arguments)
+    const target = args.shift()
+    const self = this
+    // return self(args)  // 立即执行返回 this is xxx
+    // 箭头函数  self 指向window
+    // return ()=> {
+    //     self.apply(target,args)
+    // }
+    return function () {
+        return self.apply(target,args)
+    }
+}
+function fn(a,b) {
+    this.name = a
+    console.log(this)
+    console.log(a,b)
+    return 'this is  ' + this.name
+}
+const fnbind = fn.bind({'fnbind': 100}, 'fnbind', 100)
+const fnbind1 = fn.bind1({'fnbind1': 100}, 'fnbind1', 100)
+const fncall = fn.call({'fncall': 100}, 'fncall', 100)
+const fnapply = fn.apply({'fnapply': 100}, ['fnapply', 100])
+console.log(fnbind)     // 不执fn行函数 返回新函数 fnbind调用时才执行fn函数代码 再返回 'this is  fnbind'
+console.log(fnbind1)    // 不执fn行函数 返回匿名函数以及内的函数 return self.apply(target, args)  fnbind1调用时才执行fn函数代码 再返回 'this is  fnbind1'
+console.log(fncall)     // 执行fn函数代码 返回 this is fncall,  fncall调用时报错 fncall is not a function
+console.log(fnapply)    // 执行fn函数代码 返回 this is fnapply, fnapply调用时报错fnapply is not a function
+```
