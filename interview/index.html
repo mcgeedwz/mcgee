@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
+		<title>js公用dom</title>
+		<script src="./jquery.js"></script>
+	</head>
+	<body>
+		<div>11111</div>
+		<div>2222</div>
+		<div>333</div>
+		<script type="text/javascript">
+			const oDiv = new Jquery('div')
+			oDiv.on('click', function (e) {
+				console.log('click', e)
+			})
+			oDiv.dialog('show', 'showshowshow')
+		</script>
+	</body>
+</html>
