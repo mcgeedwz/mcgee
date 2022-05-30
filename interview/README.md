@@ -269,6 +269,110 @@ ____
 
 # js
 
+## 变量
+
+### 变量类型
+栈和堆
+js值类型储存在栈里 key,value的方式 引用类型会在栈里储存一个key,value(value是一个地址 指向该对象堆里的值)
+当我们修改对象的值的时候 实际是修改堆里的值 引用该地址的对象的值都会发生变化
+1. 值类型
+undefined,string,number,boolean,symblo
+
+2. 引用类型
+   array,object -> object
+   null -> object 引用类型 指向一个空对象
+   function -> Function 类型 
+
+3. typeof 判断数据类型
+   ```js
+   let a
+   let str = 'b'
+   let num = 100
+   let boo = true
+   let sym = Symbol('e')
+   let arr = ['1','2']
+   let obj = {'name':'zhangsan','age': 18}
+   let fn = function () {let a = '1'}
+   let n = null
+   console.log(typeof(a))   // undefined
+   console.log(typeof(str)) // string
+   console.log(typeof(num)) // number
+   console.log(typeof(boo)) // boolean
+   console.log(typeof(sym)) // symbol
+   console.log(typeof(arr)) // object
+   console.log(typeof(obj)) // object
+   console.log(typeof(n))   // object 指向一个空对象
+   console.log(typeof(fn))  // function
+   ```
+### 拷贝 深拷贝
+
+[深拷贝和浅拷贝的区别？](#https://juejin.cn/post/7072528644739956773)
+1. 浅拷贝和深拷贝都是创建一份数据的拷贝。
+2. JS 分为原始类型和引用类型，对于原始类型的拷贝，并没有深浅拷贝的区别，我们讨论的深浅拷贝都只针对引用类型。
+3. 浅拷贝和深拷贝都复制了值和地址，都是为了解决引用类型赋值后互相影响的问题。
+4. 但是浅拷贝只进行一层复制，深层次的引用类型还是共享内存地址，原对象和拷贝对象还是会互相影响。
+5. 深拷贝就是无限层级拷贝，深拷贝后的原对象不会和拷贝对象互相影响。
+6. 网络上的很多文章觉得引用类型赋值就是浅拷贝，误导了很多人，
+   但 lodash 中的浅拷贝和深拷贝总不会错吧，这么多项目都在用。
+    为了验证上述理论的正确性，我们就用 lodash 来测试一下，lodash 中浅拷贝方法为 clone，深拷贝方法为 cloneDeep。
+
+####  浅拷贝 
+指拷贝对象的属性如果是引用类型 拷贝的是属性值的引用地址 修改一个地方的值 所有拷贝对象该属性的值都会变化 达不到隔离效果
+浅拷贝方法
+
+```js
+// 浅拷贝数组   arr对象都改变了
+let a = [1,2,{'arr':[4,5]}]
+let b = [...a]
+b.push(3)   // 第一层操作数组不影响
+b[2].arr[2] = 6 // 数组原素是引用类型的会被影响
+console.log(a)  // a[2].arr  [4，5，6]
+console.log(b)  // b[2].arr  [4，5，6]
+
+
+```
+   
+### 深拷贝 
+是指拷贝对象的属性如果是引用类型 则循环该属性对象复制 创建一个新对象 达到复制隔离效果
+```js
+function deepClone(obj = {}){
+    // 判断对象是否为对象类型 不是直接返回对象
+    if(typeof obj !== 'object' || obj == null) {
+        return obj
+    }
+    // 初始化对象
+    let res 
+    if(obj instanceof Array){
+        res = []
+    }else{
+        res = {}
+    }
+    // 复制对象属性
+    for(let key in obj){
+        // 判断对象属性是否是自身属性 而不是构造函数原型属性
+        if(obj.hasOwnProperty(key)){
+            res[key] = deepClone(obj[key])
+        }
+    }
+    return res
+}
+let aaa = {
+    str: 'aaa',
+    arr:[1,3],
+    obj: {
+        a: 1
+    },
+    fn:function(name='aaa'){
+        this.name = name
+        console.log(this)
+    }
+}
+let a = deepClone(aaa)
+a.fn('a')
+
+```
+   
+
 ## DOM事件
 
 ### 基本概念
