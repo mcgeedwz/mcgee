@@ -321,7 +321,9 @@ undefined,string,number,boolean,symblo
 浅拷贝方法
 
 ```js
-// 浅拷贝数组   arr对象都改变了
+// JSON.parse(JSON.stringify(obj))
+
+// 扩展运算符
 let a = [1,2,{'arr':[4,5]}]
 let b = [...a]
 b.push(3)   // 第一层操作数组不影响
@@ -329,11 +331,44 @@ b[2].arr[2] = 6 // 数组原素是引用类型的会被影响
 console.log(a)  // a[2].arr  [4，5，6]
 console.log(b)  // b[2].arr  [4，5，6]
 
+// Object.assign 
+const obj = {
+  name: 'lin'
+}
+const newObj = Object.assign({}, obj)
+obj.name = 'xxx' // 改变原来的对象
+console.log(newObj) // { name: 'lin' } 新对象不变
+console.log(obj == newObj) // false 两者指向不同地址
+
+// 数组的 slice 
+const arr = ['lin', 'is', 'handsome']
+const newArr = arr.slice(0)
+arr[2] = 'rich' // 改变原来的数组
+console.log(newArr) // ['lin', 'is', 'handsome']
+console.log(arr == newArr) // false 两者指向不同地址
+
+// concat 方法
+const arr = ['lin', 'is', 'handsome']
+const newArr = [].concat(arr)
+arr[2] = 'rich' // 改变原来的数组
+console.log(newArr) // ['lin', 'is', 'handsome'] // 新数组不变
+console.log(arr == newArr) // false 两者指向不同地址
+
+// 数组静态方法 Array.from
+const arr = ['lin', 'is', 'handsome']
+const newArr = Array.from(arr)
+arr[2] = 'rich' // 改变原来的数组
+console.log(newArr) // ['lin', 'is', 'handsome']
+console.log(arr == newArr) // false 两者指向不同地址
 
 ```
    
 ### 深拷贝 
+处理数组、日期、正则、null
+上文的方法实现了最简单版本的深拷贝，但是没有处理 null 这种原始类型，也没有处理数组、日期和正则这种比较常用的引用类型
 是指拷贝对象的属性如果是引用类型 则循环该属性对象复制 创建一个新对象 达到复制隔离效果
+
+深拷贝简单版
 ```js
 function deepClone(obj = {}){
     // 判断对象是否为对象类型 不是直接返回对象
@@ -371,6 +406,35 @@ let a = deepClone(aaa)
 a.fn('a')
 
 ```
+### 深拷贝手写天花板
+
+```js
+function deepClone (target, hash = new WeakMap()) { // 额外开辟一个存储空间WeakMap来存储当前对象
+  if (target === null) return target
+  if (target instanceof Date) return new Date(target)
+  if (target instanceof RegExp) return new RegExp(target)
+  if (target instanceof HTMLElement) return target // 处理 DOM元素
+
+  if (typeof target !== 'object') return target
+
+  if (hash.get(target)) return hash.get(target) // 当需要拷贝当前对象时，先去存储空间中找，如果有的话直接返回
+  const cloneTarget = new target.constructor()
+  hash.set(target, cloneTarget) // 如果存储空间中没有就存进 hash 里
+
+  Reflect.ownKeys(target).forEach(key => {
+    cloneTarget[key] = deepClone(target[key], hash) // 递归拷贝每一层
+  })
+  return cloneTarget
+}
+// 测试
+const obj = {
+  domArr: [document.getElementById('foo')]
+}
+const newObj = deepClone(obj)
+console.log(newObj)
+
+```
+
    
 
 ## DOM事件
