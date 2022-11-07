@@ -607,7 +607,7 @@ function fn1 () {
 
 fn1(); // this->window
 
-fn1.call({'obj': 100}) // this->{'obj': 100} ，fn1.call 传入指向对象 / 其他参数， 相当于fn1函数内部代码执行一边 并且把this 指向传入的第一个参数
+fn1.call({'obj': 100}) // this->{'obj': 100} ，fn1.call 传入指向对象 / 其他参数， 相当于fn1函数内部代码执行一遍 并且把this 指向传入的第一个参数
 
 const fn2 = fn1.bind({'obj': 200})
 fn2() // this->{'obj': 200} 需要返回一个新的函数去执行
@@ -665,38 +665,83 @@ mcgee.sayHi()   // this-> megee实例对象
 
 
 ## 原型链
+### 面向对象基本概念
+一种编程方式
+面向对象编程 和 面向过程编程（函数编程）
 
-1. 面向对象的基础
+### 面向对象编程 三大特点 五大原则
+1. 三大特点
+    1. 继承 可以实现子类调用自己没有的属性方法【父类属性方法】
+    2. 多态 可以实现子类有不同对表现形态，可以实现同一种表现形式，可以有不同对状态
+    3. 封装 将属性和方法封装这对象中，可以利用私有或者公有属性，对外提供可以访问的方法或属性
+
+2. 五大原则
+   1. 单一 一个类应该有且只有一个去改变它的理由，这意味着一个类应该只有一项工作
+   2. 开放封闭 对象或实体应该对扩展开放，对修改封闭
+   3. 里氏替换 即对父类的调用同样适用于子类
+   4. 依赖倒置 高层次的模块不应该依赖于低层次的模块
+   5. 接口隔离 不应强迫客户端实现一个它用不上的接口，或是说客户端不应该被迫依赖它们不使用的方法
+
    
 ### 创建对象的几种方法
+
 ```js
-   // 第一种方式：字面量
-   var o1 = {name: 'o1'};
-   var o2 = new Object({name: 'o2'});
+// 第一种方式：字面量
+var o1 = { name: 'o1' }
+var o2 = new Object({ name: 'o2' })
+// 第二种方式：构造函数
+var M = function (name) {
+	this.name = name
+}
+var o3 = new M('o3')
+// 第三种方式：Object.create
+var p = { name: 'p' }
+var o4 = Object.create(p)
 
-   // 第二种方式：构造函数
-   var M = function (name) { this.name = name; }; // M构造函数
-   var o3 = new M('o3');    // o3实例
+M.prototype.say = function () {
+	console.log('say hi')
+}
+var o5 = new M('o5')
 
-   // 第三种方式：Object.create
-   var p = {name: 'p'};
-   var o4 = Object.create(p);
+/**
+ * new的过程做了什么
+ * 1 首先创建一个新对象，这个新对象的__proto__属性指向构造函数的prototype属性
+ * 2 此时构造函数执行环境的this指向这个新对象
+ * 3 执行构造函数中的代码，一般是通过this给新对象添加新的成员属性或方法。
+ * 4 最后返回这个新对象
+ */
 
-   M.prototype.say = function () {
-       console.log('say hi');
-   };
+var new2 = function (func) {
+	var o = Object.create(func.prototype)
+	var k = func.call(o)
+	if (typeof k === 'object') {
+		return k
+	} else {
+		return o
+	}
+}
+/**
+ * 课外扩展
+ * 传参数版本
+ */
+// func是构造函数，...args是需要传给构造函数的参数
+function myNew(func, ...args) {
+	// 创建一个空对象，并且指定原型为func.prototype
+	var obj = Object.create(func.prototype)
+	// new构造函数时要执行函数，同时指定this
+	func.call(obj, ...args)
+	// 最后return这个对象
+	return obj
+}
 
-   var o5 = new M('o5');
-
-   var new2 = function (func) {
-       var o = Object.create(func.prototype);
-       var k = func.call(o);
-       if (typeof k === 'object') {
-           return k;
-       } else {
-           return o;
-       }
-   };
+/**
+ * 课外扩展
+ * for in 和 for if 的区别
+ * for in 遍历对象的可枚举属性(enumerable) 包括原型链上的非自有可枚举属性 得到key 类型string 通常用hasOwnProperty()过滤非自有属性
+ * for of es6 方法 拥有迭代器对象（iterator）的集合 适用数组 得到value值 不包括原型链上的属性 循环普通的对象需要通过Object.keys搭配使用
+ * for of适用遍历数/数组对象/字符串/map/set等拥有迭代器对象（iterator）的集合，但是不能遍历对象，因为没有迭代器对象
+ * 但如果想遍历对象的属性，你可以用for in循环（这也是它的本职工作）或用内建的Object.keys()方法
+ */
 ```
 
 1. 原型 原型对象
@@ -709,7 +754,199 @@ mcgee.sayHi()   // this-> megee实例对象
 5. instanceof原理
 6. new运算符
 
-----
+--------------------------
+
+## 继承
+### 继承的方式 以及优缺点
+
+1. 原型链继承
+2. 构造函数继承
+3. 组合寄生继承
+4. es6 extends继承
+
+```js
+/**
+ * 类的声明
+ */
+var Animal = function () {
+	this.name = 'Animal'
+}
+
+/**
+ * es6中class的声明
+ */
+class Animal2 {
+	constructor() {
+		this.type = 'Animal2'
+	}
+}
+
+/**
+ * 实例化
+ */
+console.log(new Animal(), new Animal2())
+
+/**
+ * 借助构造函数实现继承
+ * 原理 改变this 指向
+ * 原理 call 将父类的构造函数this 指向子类的构造函数的实例 代码执行一遍 继承父类的属性
+ * 缺点 父类原型对象上的属性无法继承
+ *
+ */
+function Parent1() {
+	this.name = 'parent1'
+}
+// 缺点 无法继承原型对象上的属性
+Parent1.prototype.say = function () {}
+function Child1() {
+	Parent1.call(this)
+	this.type = 'child1'
+}
+// new Child1().say() 无法继承
+console.log(new Child1(), new Child1().say())
+
+/**
+ * 借助原型链实现继承
+ *
+ */
+function Parent2() {
+	this.name = 'parent2'
+	this.play = [1, 2, 3]
+}
+function Child2() {
+	this.type = 'child2'
+}
+Child2.prototype = new Parent2()
+
+var s1 = new Child2()
+var s2 = new Child2()
+console.log(s1.play, s2.play)
+s1.play.push(4)
+
+/**
+ * 组合方式
+ * constructor 是父类
+ */
+function Parent3() {
+	this.name = 'parent3'
+	this.play = [1, 2, 3]
+}
+function Child3() {
+	Parent3.call(this)
+	this.type = 'child3'
+}
+Child3.prototype = new Parent3()
+var s3 = new Child3()
+var s4 = new Child3()
+s3.play.push(4)
+console.log(s3.play, s4.play)
+
+/**
+ * 组合继承的优化1
+ * constructor 是父类
+ * @type {String}
+ */
+function Parent4() {
+	this.name = 'parent4'
+	this.play = [1, 2, 3]
+}
+function Child4() {
+	Parent4.call(this)
+	this.type = 'child4'
+}
+Child4.prototype = Parent4.prototype
+var s5 = new Child4()
+var s6 = new Child4()
+console.log(s5, s6)
+
+console.log(s5 instanceof Child4, s5 instanceof Parent4)
+console.log(s5.constructor)
+
+/**
+ * 组合继承的优化2
+ */
+function Parent5() {
+	this.name = 'parent5'
+	this.play = [1, 2, 3]
+}
+function Child5() {
+	Parent5.call(this)
+	this.type = 'child5'
+}
+Child5.prototype = Object.create(Parent5.prototype)
+Child5.prototype.constructor = Child5
+
+console.log(new Child5())
+
+/**
+ * es6 继承
+ * 核心代码是Object.create原理
+ */
+class Pearnt6 {
+	constructor(age) {
+		this.name = 'Pearnt class'
+		this.age = age
+	}
+}
+
+class Child6 extends Pearnt6 {
+	constructor(age, show) {
+		super(age)
+		this.type = 'child class'
+		this.show = show
+	}
+}
+let baby6_1 = new Child6('show6', 18)
+console.log(baby6_1)
+
+/**
+ * 根据class和继承，手写jQuery示例来理解
+ */
+class jQuery {
+	constructor(selector) {
+		const result = document.querySelectorAll(selector)
+		const length = result.length
+		for (let i = 0; i < length; i++) {
+			this[i] = result[i]
+		}
+		this.length = length
+		this.selector = selector
+	}
+	// 返回dom元素
+	get(index) {
+		return this[index]
+	}
+	// 遍历
+	each(fn) {
+		for (let i = 0; i < this.length; i++) {
+			const elem = this[i]
+			fn(elem)
+		}
+	}
+	// 监听一个方法
+	on(type, fn) {
+		return this.each((elem) => {
+			elem.addEventListener(type, fn, false)
+		})
+	}
+	// 扩展很多 DOM API
+}
+
+// 插件
+jQuery.prototype.dialog = function (info) {
+	alert(info)
+}
+
+// “造轮子”
+class myJQuery extends jQuery {
+	constructor(selector) {
+		super(selector)
+	}
+	// 扩展自己的方法
+	addClass(className) {}
+	style(data) {}
+}
+```
 
 # 网络
 ## http协议

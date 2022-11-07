@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title>面向对象</title>
+	</head>
+	<body>
+		<script type="text/javascript">
+			/**
+			 * 类的声明
+			 */
+			function foo1() {
+				this.name = 'foo1'
+				this.arr = [1, 2]
+			}
+			/**
+			 * es6中class的声明
+			 */
+			class foo2 {
+				constructor() {
+					this.name = 'foo2'
+				}
+			}
+			/**
+			 * 实例化
+			 */
+			let foo3 = new foo1()
+			console.log('实例', foo3)
+			/**
+			 * 借助构造函数实现继承
+			 * 原理 改变this 指向
+			 * 原理 call 将父类的构造函数this 指向子类的构造函数的实例 代码执行一遍 继承父类的属性
+			 * 缺点 父类原型对象上的属性无法继承
+			 *
+			 */
+			function child1() {
+				foo1.call(this)
+				this.type = 'child1'
+			}
+			let baby1 = new child1()
+			// 给父类原型添加方法 baby1实例对象无法继承此属性
+			foo1.prototype.say = function () {
+				this.sayhi = 'sayhi'
+			}
+			console.log(
+				'构造函数继承 call继承父类属性 无法继承父类原型对象上的属性',
+				baby1,
+				baby1.say()
+			)
+
+			/**
+			 * 借助原型链实现继承
+			 * 子类 父类引用同一个原型对象
+			 * instancof 不能判断实例的构造函数
+			 * 父类的引用类型和子类无法隔离
+			 */
+			function child2() {
+				this.type = 'child2'
+			}
+			child2.prototype = new foo1()
+
+			let baby2 = new child2()
+			let baby4 = new child2()
+			baby2.arr.push(3)
+			console.log('借助原型链实现继承 实例arr属性值都被改变', baby2, baby4)
+
+			/**
+			 * 组合方式
+			 */
+			function child3() {
+				foo1.call(this)
+				this.type = 'child3'
+			}
+			child3.prototype = new foo1()
+			let baby3_1 = new child3()
+
+			/**
+			 * 组合继承的优化1
+			 * @type {String}
+			 */
+			function child4() {
+				this.type = 'child4'
+			}
+			child4.prototype = foo1.prototype
+
+			let baby4_1 = new child4()
+
+			/**
+			 * 组合继承的优化2
+			 */
+		</script>
+	</body>
+</html>

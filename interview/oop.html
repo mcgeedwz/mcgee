@@ -1,114 +1,192 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8">
-    <title>面向对象</title>
-  </head>
-  <body>
-    <script type="text/javascript">
-      /**
-       * 类的声明
-       */
-      var Animal = function () {
-          this.name = 'Animal';
-      };
+	<head>
+		<meta charset="utf-8" />
+		<title>面向对象</title>
+	</head>
+	<body>
+		<script type="text/javascript">
+			/**
+			 * 类的声明
+			 */
+			var Animal = function () {
+				this.name = 'Animal'
+			}
 
-      /**
-       * es6中class的声明
-       */
-      class Animal2 {
-          constructor () {
-              this.name = 'Animal2';
-          }
-      }
+			/**
+			 * es6中class的声明
+			 */
+			class Animal2 {
+				constructor() {
+					this.type = 'Animal2'
+				}
+			}
 
-      /**
-       * 实例化
-       */
-      console.log(new Animal(), new Animal2());
+			/**
+			 * 实例化
+			 */
+			console.log(new Animal(), new Animal2())
 
-      /**
-       * 借助构造函数实现继承
-       */
-      function Parent1 () {
-          this.name = 'parent1';
-      }
-      Parent1.prototype.say = function () {
+			/**
+			 * 借助构造函数实现继承
+			 * 原理 改变this 指向
+			 * 原理 call 将父类的构造函数this 指向子类的构造函数的实例 代码执行一遍 继承父类的属性
+			 * 缺点 父类原型对象上的属性无法继承
+			 *
+			 */
+			function Parent1() {
+				this.name = 'parent1'
+			}
+			// 缺点 无法继承原型对象上的属性
+			Parent1.prototype.say = function () {}
+			function Child1() {
+				Parent1.call(this)
+				this.type = 'child1'
+			}
+			// new Child1().say() 无法继承
+			console.log(new Child1(), new Child1().say())
 
-      };
-      function Child1 () {
-          Parent1.call(this);
-          this.type = 'child1';
-      }
-      console.log(new Child1(), new Child1().say());
+			/**
+			 * 借助原型链实现继承
+			 *
+			 */
+			function Parent2() {
+				this.name = 'parent2'
+				this.play = [1, 2, 3]
+			}
+			function Child2() {
+				this.type = 'child2'
+			}
+			Child2.prototype = new Parent2()
 
-      /**
-       * 借助原型链实现继承
-       */
-      function Parent2 () {
-          this.name = 'parent2';
-          this.play = [1, 2, 3];
-      }
-      function Child2 () {
-          this.type = 'child2';
-      }
-      Child2.prototype = new Parent2();
+			var s1 = new Child2()
+			var s2 = new Child2()
+			console.log(s1.play, s2.play)
+			s1.play.push(4)
 
-      var s1 = new Child2();
-      var s2 = new Child2();
-      console.log(s1.play, s2.play);
-      s1.play.push(4);
+			/**
+			 * 组合方式
+			 * constructor 是父类
+			 */
+			function Parent3() {
+				this.name = 'parent3'
+				this.play = [1, 2, 3]
+			}
+			function Child3() {
+				Parent3.call(this)
+				this.type = 'child3'
+			}
+			Child3.prototype = new Parent3()
+			var s3 = new Child3()
+			var s4 = new Child3()
+			s3.play.push(4)
+			console.log(s3.play, s4.play)
 
-      /**
-       * 组合方式
-       */
-      function Parent3 () {
-          this.name = 'parent3';
-          this.play = [1, 2, 3];
-      }
-      function Child3 () {
-          Parent3.call(this);
-          this.type = 'child3';
-      }
-      Child3.prototype = new Parent3();
-      var s3 = new Child3();
-      var s4 = new Child3();
-      s3.play.push(4);
-      console.log(s3.play, s4.play);
+			/**
+			 * 组合继承的优化1
+			 * constructor 是父类
+			 * @type {String}
+			 */
+			function Parent4() {
+				this.name = 'parent4'
+				this.play = [1, 2, 3]
+			}
+			function Child4() {
+				Parent4.call(this)
+				this.type = 'child4'
+			}
+			Child4.prototype = Parent4.prototype
+			var s5 = new Child4()
+			var s6 = new Child4()
+			console.log(s5, s6)
 
-      /**
-       * 组合继承的优化1
-       * @type {String}
-       */
-      function Parent4 () {
-          this.name = 'parent4';
-          this.play = [1, 2, 3];
-      }
-      function Child4 () {
-          Parent4.call(this);
-          this.type = 'child4';
-      }
-      Child4.prototype = Parent4.prototype;
-      var s5 = new Child4();
-      var s6 = new Child4();
-      console.log(s5, s6);
+			console.log(s5 instanceof Child4, s5 instanceof Parent4)
+			console.log(s5.constructor)
 
-      console.log(s5 instanceof Child4, s5 instanceof Parent4);
-      console.log(s5.constructor);
+			/**
+			 * 组合继承的优化2
+			 */
+			function Parent5() {
+				this.name = 'parent5'
+				this.play = [1, 2, 3]
+			}
+			function Child5() {
+				Parent5.call(this)
+				this.type = 'child5'
+			}
+			Child5.prototype = Object.create(Parent5.prototype)
+			Child5.prototype.constructor = Child5
 
-      /**
-       * 组合继承的优化2
-       */
-      function Parent5 () {
-          this.name = 'parent5';
-          this.play = [1, 2, 3];
-      }
-      function Child5 () {
-          Parent5.call(this);
-          this.type = 'child5';
-      }
-      Child5.prototype = Object.create(Parent5.prototype);
+			console.log(new Child5())
 
-    </script>
-  </body>
+			/**
+			 * es6 继承
+			 * 核心代码是Object.create原理
+			 */
+			class Pearnt6 {
+				constructor(age) {
+					this.name = 'Pearnt class'
+					this.age = age
+				}
+			}
+
+			class Child6 extends Pearnt6 {
+				constructor(age, show) {
+					super(age)
+					this.type = 'child class'
+					this.show = show
+				}
+			}
+			let baby6_1 = new Child6('show6', 18)
+			console.log(baby6_1)
+
+			/**
+			 * 根据class和继承，手写jQuery示例来理解
+			 */
+			class jQuery {
+				constructor(selector) {
+					const result = document.querySelectorAll(selector)
+					const length = result.length
+					for (let i = 0; i < length; i++) {
+						this[i] = result[i]
+					}
+					this.length = length
+					this.selector = selector
+				}
+				// 返回dom元素
+				get(index) {
+					return this[index]
+				}
+				// 遍历
+				each(fn) {
+					for (let i = 0; i < this.length; i++) {
+						const elem = this[i]
+						fn(elem)
+					}
+				}
+				// 监听一个方法
+				on(type, fn) {
+					return this.each((elem) => {
+						elem.addEventListener(type, fn, false)
+					})
+				}
+				// 扩展很多 DOM API
+			}
+
+			// 插件
+			jQuery.prototype.dialog = function (info) {
+				alert(info)
+			}
+
+			// “造轮子”
+			class myJQuery extends jQuery {
+				constructor(selector) {
+					super(selector)
+				}
+				// 扩展自己的方法
+				addClass(className) {}
+				style(data) {}
+			}
+		</script>
+	</body>
 </html>

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title>原型链 如何创建对象 手写new</title>
+	</head>
+	<body>
+		<script type="text/javascript">
+			/**
+			 * 如何创建对象
+			 * 1 字面量方式
+			 * 2 new
+			 * 3 Object.create
+			 */
+
+			/**
+			 * 字面量方式
+			 */
+
+			let o1 = { o: 'obj' }
+
+			/**
+			 * new
+			 */
+
+			let o2 = new Object({ o: 'obj' })
+
+			/**
+			 * 构造函数
+			 */
+			let Cs = function (obj) {
+				this.o = obj
+			}
+			let o3 = new Cs()
+
+			/**
+			 * Object.create
+			 * 实际创建的是一个控对象 对象属性在原型链上
+			 */
+
+			let o4 = Object.create({ o: 'obj' })
+			console.log(o1, o2, o3, o4)
+
+			/**
+			 * 实现一个new 函数
+			 * new 的过程做了什么
+			 * 1. 创建一个空对象
+			 * 2. 将这个空对象
+			 * 3.
+			 */
+		</script>
+	</body>
+</html>
