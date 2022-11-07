@@ -948,9 +948,28 @@ class myJQuery extends jQuery {
 }
 ```
 
-# 网络
-## http协议
+# 网络 通信
+## 同源策略
+同源是指 协议 域名 端口相同 
+同源策略是浏览器禁止协议 域名 端口三者其一不同的资源交互
+不能交互主要体现在
+1. 无法访问cookie loacStorage 和 indexdb
+2. dom元素
+3. ajax请求
 
+## 前后端通信方式
+1. xmlHTTPReaquest对象(ie atciveXObject)
+2. fetch (h5)
+3. webSocket
+4. CORS
+   
+## 跨域
+1. jsonP
+2. webSocket
+3. CORS
+4. postMessage
+   
+## http协议
 #### http协议的主要特点
 1. 简单快速
 1. 灵活
@@ -968,7 +987,6 @@ class myJQuery extends jQuery {
    2. 相应头
    3. 空行
    4. 响应体
-
 
 #### http方法
 get 获取资源
@@ -1007,7 +1025,7 @@ http1.1支持持久连接
 
 #### 什么是管线化
 持久连接   请求1-响应1-请求2-响应2
-管线化    请求1-请求2-响应1-响应2 
+管线化    请求1-请求2-响应1-响应2
 
 http1.1，get,head支持管线化，只能保证管线化请求管线化请求不失败，不会带来大幅度性能提升 浏览器默认未开启管线化支持
 
