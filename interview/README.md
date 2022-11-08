@@ -493,10 +493,15 @@ setTimeout(function () {
 
 ## 作用域
 
-1. 作用域指的是指一个变量合法使用的范围
+概念：简单来说，作用域 指程序中定义变量的区域，它决定了当前执行代码对变量的访问权限。
+1. 作用域指的是指一个变量合法使用的范围 
 全局作用域  全局可以访问使用
-函数作用域  当前行数作用域内使用
+函数作用域  当前函数作用域内使用
 块级作用域  
+
+### 作用域连
+
+概念：当可执行代码内部访问变量时，会先查找本地（当前）作用域，如果找到目标变量即返回，否则会去父级作用域继续查找...一直找到全局作用域。我们把这种作用域的嵌套机制，称为 作用域链。
 
 ### 自由变量
 
@@ -506,6 +511,10 @@ setTimeout(function () {
 4. 自由变量的查找，是在函数定义的地方，向上级作用域查找
 
 ## 闭包 closure
+
+官方概念：闭包是指有权访问另一个函数作用域中的变量的函数
+
+闭包的作用 变量私有化
 
 解题思路：
     闭包：自由变量的查找，是在函数定义的地方，向上级作用域查找
@@ -558,6 +567,7 @@ setTimeout(function () {
    mcgee.set('name','mcgee')
    console.log(mcgee.get('name'))
    ```
+
 1. for循环
    ```js
    let i, a
@@ -587,6 +597,28 @@ setTimeout(function () {
    })($$)
 
    ```
+## 闭包的问题 
+
+### 内存泄漏 
+
+内存泄漏 是指当一块内存不再被应用程序使用的时候，由于某种原因，这块内存没有返还给操作系统或者内存池的现象。内存泄漏可能会导致应用程序卡顿或者崩溃
+
+### 导致内存泄漏的情况有
+1. 由于闭包使用过度而导致的内存占用无法释放的情况
+   javascript 内部的垃圾回收机制用的是引用计数收集：即当内存中的一个变量被引用一次，计数就加一。垃圾回收机制会以固定的时间轮询这些变量，将计数为 0 的变量标记为失效变量并将之清除从而释放内存
+2. 全局变量的无意创建
+3. 还有 DOM 的事件绑定，移除 DOM 元素前如果忘记了注销掉其中绑定的事件方法，也会造成内存泄露
+
+### 查看内存方法 Chrome 开发者工具 Performance || memory
+
+### 内存泄露的解决方案
+1. 使用严格模式，避免不经意间的全局变量泄露  
+2. 关注 DOM 生命周期，在销毁阶段记得解绑相关事件
+3. 或者可以使用事件委托的手段统一处理事件，减少由于事件绑定带来的额外内存开销
+4. 避免过度使用闭包
+   
+
+## 垃圾回收机制
 
 
 ## this 
@@ -947,8 +979,74 @@ class myJQuery extends jQuery {
 	style(data) {}
 }
 ```
+------------------------------------------------------
 
+# 事件机制 (mk400 7-1)
+
+## 同步和异步的区别
+
+js是单线程语言 同步会阻塞代码执行，异步不会阻塞代码执行
+
+1. js是单线程语言，只能同时做一件事
+2. 浏览器和nodejs已支持js启动进程，如web worker
+3. js和dom渲染共用同一个线程，因为js可以修改dom
+
+
+## promise
+
+解决嵌套 回调地狱 callback hell
+.then... 管道形势
+
+### 手写Promise 加载图片
+
+```js
+function loadImg(src) {
+    return new Promise((resolve,reject)=>{
+        const img = document.createElement('ing')
+        img.onload = function (){
+            resolve(img)
+        }
+        img.onError = function (){
+            const err = new Error(`图片加载失败${img}`)
+            reject(err)
+        }
+        img.src = src
+    })
+}
+
+loadImg(url = 'https://img1.xxxxx').then((img)=>{
+    console.log(img)
+    return img
+}).then((img)=>{
+    console.log(img)
+    return loadImg(url = 'https://img2.xxxxx')
+}).then((img)=>{ // img 是img2 对象
+    console.log(img)
+}).catch((err)=>{
+    console.log(err)
+})
+    
+```
+
+## 事件循环机制 异步进阶 原理 （mk400 8-1）
+
+### 主要内容
+1. 事件循环机制 event loop
+2. promise 进阶
+3. async/await
+4. 微任务/宏任务
+
+### 事件循环机制 event loop
+
+## 使用异步场景
+
+需要等待
+1. 网络请求 如 图片加载
+2. 定时任务，如 setTimeout
+
+-----------------------------------------------------------
 # 网络 通信
+
 ## 同源策略
 同源是指 协议 域名 端口相同 
 同源策略是浏览器禁止协议 域名 端口三者其一不同的资源交互
@@ -965,11 +1063,14 @@ class myJQuery extends jQuery {
    
 ## 跨域
 1. jsonP
-2. webSocket
-3. CORS
-4. postMessage
+   利用script 标签跨域动态创建script 加载资源并在js 回调函数
+2. hash (location 对象 url '#'后面改变不会刷新页面 '?'(search)后面改变会刷新页面)
+3. webSocket (本身可以跨域)
+4. CORS (h5 fetch设置请求头CORS)
+5. postMessage (h5)
    
 ## http协议
+
 #### http协议的主要特点
 1. 简单快速
 1. 灵活
@@ -1028,6 +1129,29 @@ http1.1支持持久连接
 管线化    请求1-请求2-响应1-响应2
 
 http1.1，get,head支持管线化，只能保证管线化请求管线化请求不失败，不会带来大幅度性能提升 浏览器默认未开启管线化支持
+
+## 储存
+### cookie localStore sesion indexdb
+
+
+
+## 前端安全问题
+
+### crsf 跨站伪造请求
+通常利用钓鱼链接 从客户端携带用户cookie信息发起伪造请求 
+
+### XSS (Cross Site Scripting)跨站脚本攻击 
+给客户端注入恶意脚本攻击
+
+
+### 防止前端攻击的方法
+
+过滤字符 规范使用eval等方法
+cookie设置 httpOnly
+touken验证
+sesion验证
+令牌
+---------------------------------------------------------
 
 ## 手写题
 
@@ -1152,3 +1276,4 @@ console.log(fnbind1)    // 不执fn行函数 返回匿名函数以及内的函�
 console.log(fncall)     // 执行fn函数代码 返回 this is fncall,  fncall调用时报错 fncall is not a function
 console.log(fnapply)    // 执行fn函数代码 返回 this is fnapply, fnapply调用时报错fnapply is not a function
 ```
+----------------------------------------------------------
