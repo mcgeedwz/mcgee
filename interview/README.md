@@ -417,9 +417,7 @@ UDP是无状态的性质，在服务器端需要对大量客户端产生的少�
 10. 上层使用的协议
 
 基于TCP协议的：Telnet，FTP以及SMTP协议。
-基于UDP协议的：DHCP、DNS、SNMP、TFTP、BOOTP。
-
-
+基于UDP协议的：DHCP、DNS、SNMP、TFTP、BOOTP
 
 ------------------------------------------------
 
@@ -1559,7 +1557,91 @@ console.log(fnapply)    // 执行fn函数代码 返回 this is fnapply, fnapply�
 # es6
 ----------------------------------------------------------
 # vue
+## vue 的特点
+1. mvvm 数据双向绑定 - model view  viewModel
+2. 响应式
+3. 组件化
+4. 数据驱动
+5. 模版编译
+6. 轻量
+   
 ## 原理
+
+1. vue2 - Object.defineProperty 监听数据变化然后通知视图更新  
+    只能监听到对像第一层数据 
+    深度监听 递归计算量大
+2. vue3 - proxy 代理 可以监听整个对象 对浏览器有限制 
+
+## 核心实现代码
+
+```js
+// 更新视图
+function updateView() {
+    consle.log('视图更新')
+}
+
+// 重写数组方法 - 原生视图方法无法触发视图更新 修改数据使用vue.set vue.delete
+const oldArrProperty  = Array.prototype
+const arrProto = Object.create(oldArrProperty)
+['push', 'pop','shift','unshift','splice'].forEach((methodName)=>{
+    updeteView()
+    oldArrProperty[methodName].call(this,...arguments)
+})
+
+// 监听变化
+function defineReactive(target, key, val) {
+    observer(val)
+    Object.defineProperty(target, key, {
+        get() {
+            return value
+        },
+        set(newValue) {
+            // 赋值
+            if(newValue !== value) {
+                observer(newValue)
+                value = newValue
+                // 更新视图
+                updateView()
+            }
+
+        }
+    })
+}
+
+// 观察者
+function observer (tartet) {
+    
+    if( typeof target !== 'object' || target === null ) {
+        return target
+    }
+    // for in 遍历数组和对象 
+    for (let key in target) {
+        defineReactive(target, key, target[key])
+    }
+}
+```
+## 虚拟dom vNode diff算法
+
+1. 概念 vue用 js 模拟dom结构 叫虚拟dom
+2. 目的是把浏览器修改dom的计算环节交给js来做 这样可以提高页面的渲染速度
+3. vue diff算法的核心 （事件复杂度优化到O(n)）
+   1. 同级比较 不跨级比较 
+   2. tag不相删除重建
+   3. tag 和 key 两者都相同，则认为是相同节点，不再深度比较
+   4. 源码相关方法
+      1. patchVnode
+      2. addVnodes removeVnodes
+      3. updateChildren (key 的重要性) 
+   
+## key 的重要性 - 为什么key不推荐使用index和随机数
+
+1. index 当节点排序改变时 
+2. 随机数 当通过key做比较时 key值都不相同 会把所有节点删除重建
+
+## 双向数据绑定 v-model 是实现原理
+
+
+
 ## vue全家桶
 ### vue router
 ## vue2 vue3
